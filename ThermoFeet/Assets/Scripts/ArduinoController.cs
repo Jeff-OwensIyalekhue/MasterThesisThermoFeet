@@ -10,15 +10,9 @@ using TMPro;
 
 public class ArduinoController : MonoBehaviour
 {
+    [Header("Serial Connection")]
     public string portName = "COM4";
     public int baudRate = 9600;//115200;
-
-    public Image frontVis;
-    public Image backVis;
-    public Image rightVis;
-    public Image leftVis;
-    public Image dummyVis;
-
     public TMP_Dropdown dropdownSerialPorts;
 #if !UNITY_ANDROID
     private SerialPort serialPort;
@@ -26,24 +20,45 @@ public class ArduinoController : MonoBehaviour
 #endif
     private string serialInput;
 
+    [Header("Settings")]
+    public bool useVisualization = false;
+
+    [Header("UI References")]
+    public Image frontVis;
+    public Image backVis;
+    public Image rightVis;
+    public Image leftVis;
+    public Image dummyVis;
+
+    public GameObject serialUI;
+
     public GameObject modularController;
     public GameObject directionalController;
 
 #if !UNITY_ANDROID
     void Start()
     {
-        GetSerialPorts();
-        ConnectToPort();
+        useVisualization = (frontVis != null || backVis != null || rightVis != null || leftVis != null || dummyVis != null);
     }
+#else
+    void Start()
+    {
+        serialUI.SetActive(false);
+        useVisualization = (frontVis != null || backVis != null || rightVis != null || leftVis != null || dummyVis != null);
+    }
+#endif
 
+#if !UNITY_ANDROID
     void Update()
     {
         if (serialPort != null && serialPort.IsOpen)
         {
+            //if (serialUI.activeSelf)
+            //    serialUI.SetActive(false);
+
             serialInput = SerialReadLine();
-            //if (serialInput != null)
-            //    Debug.Log("arduino: " + serialInput);
-            PeltierStatusVis(serialInput);
+            if (useVisualization)
+                PeltierStatusVis(serialInput);
         }
     }
 #else
@@ -70,11 +85,16 @@ public class ArduinoController : MonoBehaviour
     public void GetSerialPorts()
     {
         dropdownSerialPorts.ClearOptions();
-        string[] portList = SerialPort.GetPortNames();
         List<TMP_Dropdown.OptionData> optionList = new List<TMP_Dropdown.OptionData>();
+
+        TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData();
+        option.text = "none";
+        optionList.Add(option);
+
+        string[] portList = SerialPort.GetPortNames();
         foreach (string port in portList)
         {
-            TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData();
+            option = new TMP_Dropdown.OptionData();
             option.text = port;
             optionList.Add(option);
         }
@@ -153,7 +173,7 @@ public class ArduinoController : MonoBehaviour
     private void PeltierStatusVis(string signal)
     {
 #if !UNITY_ANDROID
-        if (serialPort.IsOpen)
+        if (serialPort != null && serialPort.IsOpen)
         {
             switch (signal)
             {
@@ -270,18 +290,15 @@ public class ArduinoController : MonoBehaviour
     {
         if (value == 1f)
         {
-            PeltierOn("F", "n");
-            //PeltierOn("F", "-");
+            PeltierOn("F", "-");
         }
         else if (value == 0f)
         {
-            PeltierReverse("F", "n");
-            //PeltierReverse("F", "-");
+            PeltierReverse("F", "-");
         }
         else
         {
-            PeltierOff("F", "o");
-            //PeltierOff("F", "-");
+            PeltierOff("F", "-");
         }
     }
 
@@ -338,45 +355,45 @@ public class ArduinoController : MonoBehaviour
     {
         string signal = id + "n" + dummy + "\n";
 #if !UNITY_ANDROID
-        if (serialPort.IsOpen)
+        if (serialPort!= null && serialPort.IsOpen)
         {
             serialPort.Write(signal);
             serialPort.BaseStream.Flush();
         }
         else
 #endif
+            if (useVisualization)
             PeltierStatusVis(signal);
-        //Debug.Log("App: " + signal);
     }
 
     public void PeltierOff(string id, string dummy)
     {
         string signal = id + "o" + dummy + "\n";
 #if !UNITY_ANDROID
-        if (serialPort.IsOpen)
+        if (serialPort != null && serialPort.IsOpen)
         {
             serialPort.Write(signal);
             serialPort.BaseStream.Flush();
         }
         else
 #endif
+            if (useVisualization)
             PeltierStatusVis(signal);
-        //Debug.Log("App: " + signal);
     }
 
     public void PeltierReverse(string id, string dummy)
     {
         string signal = id + "r" + dummy + "\n";
 #if !UNITY_ANDROID
-        if (serialPort.IsOpen)
+        if (serialPort != null && serialPort.IsOpen)
         {
             serialPort.Write(signal);
             serialPort.BaseStream.Flush();
         }
         else
 #endif
+            if (useVisualization)
             PeltierStatusVis(signal);
-        //Debug.Log("App: " + signal);
     }
     #endregion
 }

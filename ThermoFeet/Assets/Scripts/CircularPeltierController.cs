@@ -19,21 +19,24 @@ public class CircularPeltierController : MonoBehaviour
     public float trackZoneBottom = -10;
     public float trackZoneTop = 11;
     public float intervalTime = 1;
+    public float timerTime = 0;
+    public int circleOffset = 0;
 
     [Header("Manual")]
+    public bool isDebugging = false;
     public bool isPaused = false;
     public bool isHeating = false;
     public bool isParallel = true;
-    public bool useManualAngle = false;
     [Range(0, 360)]
     public int angle = 0;
+    private int angleOffseted = 0;
 
     private InputActions inputActions;
 
     private bool runningIntervalA = false;
     private bool runningIntervalB = false;
 
-    private float timerTime = 0;
+    private bool isTimerRunning = false;
     private int prevAngle = 0;
     private bool isAngleChanging = false;
     #endregion
@@ -42,98 +45,44 @@ public class CircularPeltierController : MonoBehaviour
     {
         inputActions = new InputActions();
         inputActions.Standard.Enable();
+        angleOffseted = angle + circleOffset;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (prevAngle != angle)
+        if (isDebugging)
         {
-            prevAngle = angle;
-            directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
-            angleText.text = "" + angle + "°";
+            if (prevAngle != angle)
+            {
+                prevAngle = angle;
+                directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
+                angleText.text = "" + angle + "°";
+            }
+
+            directionalPeltierControl();
         }
 
-        directionalPeltierControl();
-
-        SetTimer();
-        SetSpeed();
+        if (angleOffseted != ((angle + circleOffset) % 360))
+            angleOffseted = (angle + circleOffset) % 360;
 
         if (isPaused || isAngleChanging)
             return;
 
+        if (!isTimerRunning)
+            RunTimer();
+
         if (isParallel)
         {
-            TemperaturDirectionParallel(angle);
+            TemperaturDirectionParallel(angleOffseted);
         }
         else if (!runningIntervalA)
-            StartCoroutine(TemperaturDirectionAlternating(angle));
+            StartCoroutine(TemperaturDirectionAlternating(angleOffseted));
     }
 
     private void OnDisable()
     {
         TurnAllOff();
-    }
-
-    private void Pause(bool p)
-    {
-        isPaused = p;
-        if (isPaused)
-        {
-            TurnAllOff();
-            pauseText.text = "start";
-        }
-        else
-            pauseText.text = "stop";
-    }
-    public void TogglePause()
-    {
-        isPaused = !isPaused;
-        Pause(isPaused);
-    }
-
-    public void SetTimer()
-    {
-        if (timerInput.text != "")
-        {
-            Pause(true);
-            string timeText = timerInput.text;
-            try
-            {
-                int time = int.Parse(timeText);
-            }
-            catch (System.FormatException)
-            {
-                timerInput.text = null;
-
-            }
-        }
-    }
-    private void RunTimer()
-    {
-        if (timerTime > 0)
-        {
-            TimedActivation(timerTime);
-        }
-    }
-    public void SetSpeed()
-    {
-        if (speedInput.text != "")
-        {
-            string speedText = speedInput.text;
-            try
-            {
-                float speed = float.Parse(speedText);
-                if (speed <= 0)
-                    speed = 1;
-                intervalTime = speed;
-            }
-            catch (System.FormatException)
-            {
-                speedInput.text = null;
-
-            }
-        }
     }
 
     public void TurnAllOff()
@@ -149,6 +98,61 @@ public class CircularPeltierController : MonoBehaviour
         runningIntervalB = false;
     }
 
+    private void Pause(bool p)
+    {
+        isPaused = p;
+        if (isPaused)
+        {
+            TurnAllOff();
+            if (isDebugging)
+                pauseText.text = "start";
+        }
+        else if (isDebugging)
+            pauseText.text = "stop";
+    }
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+        Pause(isPaused);
+    }
+
+    public void SetTimer(string timeText)
+    {
+        Pause(true);
+        try
+        {
+            int time = int.Parse(timeText);
+            timerTime = time;
+        }
+        catch (System.FormatException)
+        {
+            if (isDebugging)
+                timerInput.text = null;
+        }
+    }
+    private void RunTimer()
+    {
+        if (timerTime > 0)
+        {
+            isTimerRunning = true;
+            TimedActivation(timerTime);
+        }
+    }
+    public void SetSpeed(string speedText)
+    {
+        try
+        {
+            float speed = float.Parse(speedText);
+            if (speed <= 0)
+                speed = 1;
+            intervalTime = speed;
+        }
+        catch (System.FormatException)
+        {
+            if (isDebugging)
+                speedInput.text = null;
+        }
+    }
     public void TimedActivation(float time)
     {
         StartCoroutine(_TimedActivation(time));
@@ -159,12 +163,15 @@ public class CircularPeltierController : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
             time--;
-            timerInput.text = "" + time;
-            _TimedActivation(time);
+            if (isDebugging)
+                timerInput.text = "" + time;
+            TimedActivation(time);
         }
         else
         {
-            timerInput.text = "" + timerTime;
+            isTimerRunning = false;
+            if (isDebugging)
+                timerInput.text = "" + timerTime;
             TogglePause();
         }
     }
@@ -179,7 +186,9 @@ public class CircularPeltierController : MonoBehaviour
     {
         TurnAllOff();
         angle = Random.Range(0, 360);
-        directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
+        angleOffseted = (angle + circleOffset) % 360;
+        if (isDebugging)
+            directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
     }
 
     public void directionalPeltierControl()
@@ -199,6 +208,7 @@ public class CircularPeltierController : MonoBehaviour
             Vector2 pointerRelative = new Vector2(pointer.x - directionIndicator.transform.position.x, pointer.y - directionIndicator.transform.position.y);
             float angleToCenter = Mathf.Atan2(pointerRelative.y, pointerRelative.x) * Mathf.Rad2Deg;
             angle = (int)(angleToCenter + 360) % 360;
+            angleOffseted = (angle + circleOffset) % 360;
         }
         else if (inputActions.Standard.Click.WasReleasedThisFrame())
             isAngleChanging = false;

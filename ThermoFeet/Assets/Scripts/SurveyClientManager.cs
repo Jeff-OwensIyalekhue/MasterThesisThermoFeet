@@ -7,20 +7,25 @@ using Unity.Netcode;
 
 public class SurveyClientManager : NetworkBehaviour
 {
-    private InputActions inputActions;
-    public Image directionIndicator;
-    public int angle;
-    //public NetworkVariable<int> nAngle;
-
+    [Header("Settings")]
     public float trackZoneBottom = -10;
     public float trackZoneTop = 11;
+    public Image directionIndicator;
 
-    public GameObject uiHolder;
+    [Header("Network Vairables")]
+    public NetworkVariable<int> nAngle = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
+    //public NetworkVariable<char> question = new NetworkVariable<char>();
+    public NetworkVariable<int> nLikerAnswer = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
+
+    private int angle;
+    private InputActions inputActions;
+    private AppManager appManager;
 
     void Awake()
     {
         inputActions = new InputActions();
         inputActions.Standard.Enable();
+        directionIndicator = AppManager.Singleton.directionIndicator;
     }
 
     // Update is called once per frame
@@ -29,11 +34,6 @@ public class SurveyClientManager : NetworkBehaviour
         if (IsOwner)
         {
             SetDirection();
-        }
-        else
-        {
-            if (uiHolder.activeSelf)
-                uiHolder.SetActive(false);
         }
     }
 
@@ -49,7 +49,7 @@ public class SurveyClientManager : NetworkBehaviour
             Vector2 pointerRelative = new Vector2(pointer.x - directionIndicator.transform.position.x, pointer.y - directionIndicator.transform.position.y);
             float angleToCenter = Mathf.Atan2(pointerRelative.y, pointerRelative.x) * Mathf.Rad2Deg;
             angle = (int)(angleToCenter + 360) % 360;
-            //nAngle.Value = angle;
+            nAngle.Value = angle;
             directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
         }
     }
