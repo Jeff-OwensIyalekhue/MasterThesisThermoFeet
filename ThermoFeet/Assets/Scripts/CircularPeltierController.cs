@@ -20,6 +20,8 @@ public class CircularPeltierController : MonoBehaviour
     public float trackZoneTop = 11;
     public float intervalTime = 1;
     public float timerTime = 0;
+    [Range(0f,.9f)]
+    public float baseActuation = .5f;
     public int circleOffset = 0;
 
     [Header("Manual")]
@@ -98,7 +100,7 @@ public class CircularPeltierController : MonoBehaviour
         runningIntervalB = false;
     }
 
-    private void Pause(bool p)
+    public void Pause(bool p)
     {
         isPaused = p;
         if (isPaused)
@@ -257,6 +259,9 @@ public class CircularPeltierController : MonoBehaviour
     {
         runningIntervalA = true;
 
+        float intervalFirstPart = intervalTime * baseActuation;
+        float intervalSecondPart = intervalTime - intervalFirstPart;
+
         string dummySignal = "-";
         if (time >= 0.5)
             dummySignal = "o";
@@ -268,7 +273,8 @@ public class CircularPeltierController : MonoBehaviour
         else
             arduinoController.PeltierReverse(id, dummySignal);
 
-        yield return new WaitForSeconds(intervalTime * (1 - time));
+        yield return new WaitForSeconds(intervalFirstPart);
+        yield return new WaitForSeconds(intervalSecondPart * (1 - time));
 
         if (time > 0)
         {
@@ -276,7 +282,7 @@ public class CircularPeltierController : MonoBehaviour
                 dummySignal = "n";
             arduinoController.PeltierOff(id, dummySignal);
 
-            yield return new WaitForSeconds(intervalTime * (time));
+            yield return new WaitForSeconds(intervalSecondPart * (time));
         }
         runningIntervalA = false;
     }
@@ -285,6 +291,9 @@ public class CircularPeltierController : MonoBehaviour
         if (time > 0)
         {
             runningIntervalB = true;
+
+            float intervalFirstPart = intervalTime * baseActuation;
+            float intervalSecondPart = intervalTime - intervalFirstPart;
 
             string dummySignal = "-";
             if (time < 0.5)
@@ -295,13 +304,14 @@ public class CircularPeltierController : MonoBehaviour
             else
                 arduinoController.PeltierReverse(id, dummySignal);
 
-            yield return new WaitForSeconds(intervalTime * (time));
+            yield return new WaitForSeconds(intervalFirstPart);
+            yield return new WaitForSeconds(intervalSecondPart * (time));
 
             if (time < 0.5)
                 dummySignal = "n";
             arduinoController.PeltierOff(id, dummySignal);
 
-            yield return new WaitForSeconds(intervalTime * (1 - time));
+            yield return new WaitForSeconds(intervalSecondPart * (1 - time));
 
             runningIntervalB = false;
         }

@@ -14,12 +14,10 @@ public class SurveyClientManager : NetworkBehaviour
 
     [Header("Network Vairables")]
     public NetworkVariable<int> nAngle = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
-    //public NetworkVariable<char> question = new NetworkVariable<char>();
     public NetworkVariable<int> nLikerAnswer = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
 
     private int angle;
     private InputActions inputActions;
-    private AppManager appManager;
 
     void Awake()
     {
@@ -52,6 +50,12 @@ public class SurveyClientManager : NetworkBehaviour
             nAngle.Value = angle;
             directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
         }
+    }
+
+    [ServerRpc]
+    public void StopPeltierServerRPC()
+    {
+        Debug.Log("shut down");
     }
 
     public void ClientCon()
