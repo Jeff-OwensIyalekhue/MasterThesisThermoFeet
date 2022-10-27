@@ -3,21 +3,72 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
+using UnityEngine.UI;
 
 public class SurveyServerManager : NetworkBehaviour
 {
-    public TMP_Text text;
+    private bool isShowingDirection = false;
+    public TMP_Text displayChangeText;
+    public Button displayChangeButton;
 
-    // Start is called before the first frame update
-    void Start()
+    public GameObject directionUI;
+    public GameObject likertUI;
+    public GameObject messageUI;
+    public TMP_Text messageText;
+
+    void Awake()
+    {
+        displayChangeButton.onClick.AddListener(SwitchDisplay);
+    }
+
+    void Update()
     {
 
     }
 
-    // Update is called once per frame
-    void Update()
+    [ClientRpc]
+    public void SendSignalStartClientRpc()
     {
-        if (NetworkManager.Singleton.IsServer)
-            text.text = "Connected clients: " + NetworkManager.Singleton.ConnectedClientsList.Count;
+        AppManager.Singleton.signalStartTime = Time.time;
+    }
+
+    public void SwitchDisplay()
+    {
+        isShowingDirection = !isShowingDirection;
+        if (isShowingDirection)
+        {
+            displayChangeText.text = "show message";
+            DisplayDirectionClientRpc();
+        }
+        else
+        {
+            displayChangeText.text = "show direction";
+            DisplayMessageClientRpc();
+        }
+    }
+
+    [ClientRpc]
+    public void DisplayLikertClientRpc()
+    {
+        messageUI.SetActive(false);
+        directionUI.SetActive(false);
+        likertUI.SetActive(true);
+    }
+
+    [ClientRpc]
+    public void DisplayDirectionClientRpc()
+    {
+        messageUI.SetActive(false);
+        directionUI.SetActive(true);
+        likertUI.SetActive(false);
+    }
+
+    [ClientRpc]
+    public void DisplayMessageClientRpc()
+    {
+        messageText.text = "Hello" + Random.Range(0, 10);
+        messageUI.SetActive(true);
+        directionUI.SetActive(false);
+        likertUI.SetActive(false);
     }
 }

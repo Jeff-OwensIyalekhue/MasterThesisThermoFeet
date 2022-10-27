@@ -336,6 +336,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_text
+      value: 'Point out the direction of the sensed thermal feedback:'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_fontSize
+      value: 58.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052719, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_Name
+      value: TextQuestion
+      objectReference: {fileID: 0}
     - target: {fileID: 8563623335337607613, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

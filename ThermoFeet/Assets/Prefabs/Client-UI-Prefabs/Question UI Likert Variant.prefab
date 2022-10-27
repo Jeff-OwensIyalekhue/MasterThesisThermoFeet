@@ -83,11 +83,23 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8229835541769100106}
   toggleTransition: 1
   graphic: {fileID: 941105368302367857}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 1008759497135988323}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
-  m_IsOn: 1
+      m_Calls:
+      - m_Target: {fileID: 7023899389257413168}
+        m_TargetAssemblyTypeName: LikertScale, Assembly-CSharp
+        m_MethodName: SetAnswer
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_IsOn: 0
 --- !u!114 &1656285016450854721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,7 +132,7 @@ GameObject:
   - component: {fileID: 1172733959257955281}
   - component: {fileID: 8219116129377152692}
   m_Layer: 5
-  m_Name: Background
+  m_Name: BackgroundToggle2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -197,7 +209,7 @@ GameObject:
   - component: {fileID: 7494656589606739870}
   - component: {fileID: 2651952994891686314}
   m_Layer: 5
-  m_Name: Checkmark
+  m_Name: CheckmarkToggle2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -273,7 +285,7 @@ GameObject:
   - component: {fileID: 1535705576957136295}
   - component: {fileID: 941105368302367857}
   m_Layer: 5
-  m_Name: Checkmark
+  m_Name: CheckmarkToggle0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -420,11 +432,23 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2745771827194352918}
   toggleTransition: 1
   graphic: {fileID: 1659913596694605596}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 1008759497135988323}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
-  m_IsOn: 1
+      m_Calls:
+      - m_Target: {fileID: 7023899389257413168}
+        m_TargetAssemblyTypeName: LikertScale, Assembly-CSharp
+        m_MethodName: SetAnswer
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_IsOn: 0
 --- !u!114 &6708020589422175061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -457,7 +481,7 @@ GameObject:
   - component: {fileID: 5527511332518051631}
   - component: {fileID: 4976346417020171349}
   m_Layer: 5
-  m_Name: Label
+  m_Name: LabelToggle1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -511,7 +535,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: b
+  m_text: Disagree
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -592,6 +616,8 @@ GameObject:
   - component: {fileID: 8880466655880992190}
   - component: {fileID: 5500922510936411020}
   - component: {fileID: 8967397760414938069}
+  - component: {fileID: 7023899389257413168}
+  - component: {fileID: 1008759497135988323}
   m_Layer: 5
   m_Name: Input
   m_TagString: Untagged
@@ -688,6 +714,37 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7023899389257413168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2788475999051259480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad14d2217a944ce439b10fab915150a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toggles:
+  - {fileID: 2244648391441137074}
+  - {fileID: 3997260356084446718}
+  - {fileID: 8677651599277237948}
+  - {fileID: 6470754195882729904}
+  - {fileID: 5349366176527208146}
+--- !u!114 &1008759497135988323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2788475999051259480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
 --- !u!1 &3476809329610656970
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,10 +828,22 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8219116129377152692}
   toggleTransition: 1
   graphic: {fileID: 2651952994891686314}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 1008759497135988323}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7023899389257413168}
+        m_TargetAssemblyTypeName: LikertScale, Assembly-CSharp
+        m_MethodName: SetAnswer
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
 --- !u!114 &6591973457594579031
 MonoBehaviour:
@@ -808,7 +877,7 @@ GameObject:
   - component: {fileID: 8432131899808891020}
   - component: {fileID: 427267146401405158}
   m_Layer: 5
-  m_Name: Background
+  m_Name: BackgroundToggle1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -961,7 +1030,7 @@ GameObject:
   - component: {fileID: 4846465032238722928}
   - component: {fileID: 4028779266628896810}
   m_Layer: 5
-  m_Name: Label
+  m_Name: LabelToggle3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1015,7 +1084,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: d
+  m_text: Agree
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1172,7 +1241,7 @@ GameObject:
   - component: {fileID: 8290230501277872097}
   - component: {fileID: 6131547327140129143}
   m_Layer: 5
-  m_Name: Label
+  m_Name: LabelToggle2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1226,7 +1295,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: c
+  m_text: Neutral
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1378,11 +1447,23 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 427267146401405158}
   toggleTransition: 1
   graphic: {fileID: 8462726575708761100}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 1008759497135988323}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
-  m_IsOn: 1
+      m_Calls:
+      - m_Target: {fileID: 7023899389257413168}
+        m_TargetAssemblyTypeName: LikertScale, Assembly-CSharp
+        m_MethodName: SetAnswer
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_IsOn: 0
 --- !u!114 &6352808941250248533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1415,7 +1496,7 @@ GameObject:
   - component: {fileID: 7248846822686619753}
   - component: {fileID: 5328851569592185339}
   m_Layer: 5
-  m_Name: Label
+  m_Name: LabelToggle0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1469,7 +1550,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: a
+  m_text: strongly disagree
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1621,11 +1702,23 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2951561655102026280}
   toggleTransition: 1
   graphic: {fileID: 222873694349385114}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 1008759497135988323}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
-  m_IsOn: 1
+      m_Calls:
+      - m_Target: {fileID: 7023899389257413168}
+        m_TargetAssemblyTypeName: LikertScale, Assembly-CSharp
+        m_MethodName: SetAnswer
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_IsOn: 0
 --- !u!114 &4600565572145994151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1658,7 +1751,7 @@ GameObject:
   - component: {fileID: 3727779877802937193}
   - component: {fileID: 2745771827194352918}
   m_Layer: 5
-  m_Name: Background
+  m_Name: BackgroundToggle4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1735,7 +1828,7 @@ GameObject:
   - component: {fileID: 6697172839585291859}
   - component: {fileID: 8229835541769100106}
   m_Layer: 5
-  m_Name: Background
+  m_Name: BackgroundToggle0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1812,7 +1905,7 @@ GameObject:
   - component: {fileID: 8032325148045633062}
   - component: {fileID: 8462726575708761100}
   m_Layer: 5
-  m_Name: Checkmark
+  m_Name: CheckmarkToggle1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1888,7 +1981,7 @@ GameObject:
   - component: {fileID: 8545430337214075261}
   - component: {fileID: 2951561655102026280}
   m_Layer: 5
-  m_Name: Background
+  m_Name: BackgroundToggle3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1965,7 +2058,7 @@ GameObject:
   - component: {fileID: 3643017404300714899}
   - component: {fileID: 8521740554570654840}
   m_Layer: 5
-  m_Name: Label
+  m_Name: LabelToggle4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2019,7 +2112,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: e
+  m_text: Strongly agree
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2230,6 +2323,14 @@ PrefabInstance:
     - target: {fileID: 4678334923295920103, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_text
+      value: You could detect the direction with certainy.
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_fontSize
+      value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 8563623335337607613, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_AnchorMax.y

@@ -21,7 +21,7 @@ public class ArduinoController : MonoBehaviour
     private string serialInput;
 
     [Header("Settings")]
-    public bool useVisualization = false;
+    public bool usingVisualization = false;
 
     [Header("UI References")]
     public Image frontVis;
@@ -32,19 +32,26 @@ public class ArduinoController : MonoBehaviour
 
     public GameObject serialUI;
 
-    public GameObject modularController;
-    public GameObject directionalController;
-
 #if !UNITY_ANDROID
     void Start()
     {
-        useVisualization = (frontVis != null || backVis != null || rightVis != null || leftVis != null || dummyVis != null);
+        usingVisualization = (frontVis != null || backVis != null || rightVis != null || leftVis != null || dummyVis != null);
+
+        GetSerialPorts();
+        if (dropdownSerialPorts.options.Count > 1)
+        {
+            SetSerialPort(1);
+            dropdownSerialPorts.value = 1;
+            ConnectToPort();
+        }
+        else
+            SetSerialPort(0);
     }
 #else
     void Start()
     {
         serialUI.SetActive(false);
-        useVisualization = (frontVis != null || backVis != null || rightVis != null || leftVis != null || dummyVis != null);
+        usingVisualization = (frontVis != null || backVis != null || rightVis != null || leftVis != null || dummyVis != null);
     }
 #endif
 
@@ -53,12 +60,9 @@ public class ArduinoController : MonoBehaviour
     {
         if (serialPort != null && serialPort.IsOpen)
         {
-            //if (serialUI.activeSelf)
-            //    serialUI.SetActive(false);
-
-            serialInput = SerialReadLine();
-            if (useVisualization)
-                PeltierStatusVis(serialInput);
+            serialInput = ReadSerialLine();
+            if (usingVisualization)
+                VisualizePeltierStatus(serialInput);
         }
     }
 #else
@@ -66,10 +70,7 @@ public class ArduinoController : MonoBehaviour
     private void OnApplicationQuit()
     {
         StopAllCoroutines();
-        PeltierOff("F", "o");
-        PeltierOff("B", "-");
-        PeltierOff("R", "-");
-        PeltierOff("L", "-");
+        KillPeltiers();
 
 #if !UNITY_ANDROID
         if (serialPort != null && serialPort.IsOpen)
@@ -80,8 +81,8 @@ public class ArduinoController : MonoBehaviour
 #endif
     }
 
-#if !UNITY_ANDROID
     #region serial connection
+#if !UNITY_ANDROID
     public void GetSerialPorts()
     {
         dropdownSerialPorts.ClearOptions();
@@ -121,10 +122,7 @@ public class ArduinoController : MonoBehaviour
                 serialPort.Handshake = Handshake.None;
                 serialPort.Open();
 
-                PeltierOff("F", "o");
-                PeltierOff("B", "-");
-                PeltierOff("R", "-");
-                PeltierOff("L", "-");
+                KillPeltiers();
             }
         }
         catch (System.IO.IOException)
@@ -132,7 +130,7 @@ public class ArduinoController : MonoBehaviour
             return;
         }
     }
-    public string SerialReadLine()
+    public string ReadSerialLine()
     {
         try
         {
@@ -143,34 +141,11 @@ public class ArduinoController : MonoBehaviour
             return null;
         }
     }
-    #endregion
 #else
 #endif
-    public void SwitchController(int mode)
-    {
-        StopAllCoroutines();
-        PeltierOff("F", "o");
-        PeltierOff("B", "-");
-        PeltierOff("R", "-");
-        PeltierOff("L", "-");
+    #endregion
 
-        switch (mode)
-        {
-            case 0:
-                modularController.SetActive(true);
-                directionalController.SetActive(false);
-                break;
-            case 1:
-                modularController.SetActive(false);
-                directionalController.SetActive(true);
-                break;
-            default:
-                modularController.SetActive(true);
-                directionalController.SetActive(false);
-                break;
-        }
-    }
-    private void PeltierStatusVis(string signal)
+    private void VisualizePeltierStatus(string signal)
     {
 #if !UNITY_ANDROID
         if (serialPort != null && serialPort.IsOpen)
@@ -224,151 +199,103 @@ public class ArduinoController : MonoBehaviour
             }
         }
         else
-#else
-        if (true)
+        {
+            Color c;
+            for (int i = 0; i < signal.Length; i++)
+            {
+                // get current status
+                switch (i)
+                {
+                    case 0:
+                        c = frontVis.color;
+                        break;
+                    case 1:
+                        c = backVis.color;
+                        break;
+                    case 2:
+                        c = rightVis.color;
+                        break;
+                    case 3:
+                        c = leftVis.color;
+                        break;
+                    case 4:
+                        c = dummyVis.color;
+                        break;
+                    default:
+                        c = Color.yellow;
+                        break;
+                }
+
+                // select colors according to current signal
+                if (i == signal.Length - 1)
+                {
+                    switch (signal)
+                    {
+                        case "n":
+                            c = Color.green;
+                            break;
+                        case "o":
+                            c = Color.gray;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (signal[i])
+                    {
+                        case 'n':
+                            c = Color.red;
+                            break;
+                        case 'o':
+                            c = Color.white;
+                            break;
+                        case 'r':
+                            c = Color.blue;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // change colors
+                switch (i)
+                {
+                    case 0:
+                        frontVis.color = c;
+                        break;
+                    case 1:
+                        backVis.color = c;
+                        break;
+                    case 2:
+                        rightVis.color = c;
+                        break;
+                    case 3:
+                        leftVis.color = c;
+                        break;
+                    case 4:
+                        dummyVis.color = c;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 #endif
-        {
-            string pCommand = signal.Substring(0, 2);
-            string dCommand = signal.Substring(2, 1);
-            switch (pCommand)
-            {
-                case "Fn":
-                    frontVis.color = Color.red;
-                    break;
-                case "Fo":
-                    frontVis.color = Color.white;
-                    break;
-                case "Fr":
-                    frontVis.color = Color.blue;
-                    break;
-                case "Bn":
-                    backVis.color = Color.red;
-                    break;
-                case "Bo":
-                    backVis.color = Color.white;
-                    break;
-                case "Br":
-                    backVis.color = Color.blue;
-                    break;
-                case "Rn":
-                    rightVis.color = Color.red;
-                    break;
-                case "Ro":
-                    rightVis.color = Color.white;
-                    break;
-                case "Rr":
-                    rightVis.color = Color.blue;
-                    break;
-                case "Ln":
-                    leftVis.color = Color.red;
-                    break;
-                case "Lo":
-                    leftVis.color = Color.white;
-                    break;
-                case "Lr":
-                    leftVis.color = Color.blue;
-                    break;
-                default:
-                    break;
-            }
-            switch (dCommand)
-            {
-                case "n":
-                    dummyVis.color = Color.green;
-                    break;
-                case "o":
-                    dummyVis.color = Color.gray;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+}
 
-    #region Peltier Switch Functions
-    public void PeltierFrontSwitch(float value)
-    {
-        if (value == 1f)
-        {
-            PeltierOn("F", "-");
-        }
-        else if (value == 0f)
-        {
-            PeltierReverse("F", "-");
-        }
-        else
-        {
-            PeltierOff("F", "-");
-        }
-    }
-
-    public void PeltierBackSwitch(float value)
-    {
-        if (value == 1f)
-        {
-            PeltierOn("B", "-");
-        }
-        else if (value == 0f)
-        {
-            PeltierReverse("B", "-");
-        }
-        else
-        {
-            PeltierOff("B", "-");
-        }
-    }
-
-    public void PeltierLeftSwitch(float value)
-    {
-        if (value == 1f)
-        {
-            PeltierOn("L", "-");
-        }
-        else if (value == 0f)
-        {
-            PeltierReverse("L", "-");
-        }
-        else
-        {
-            PeltierOff("L", "-");
-        }
-    }
-
-    public void PeltierRightSwitch(float value)
-    {
-        if (value == 1f)
-        {
-            PeltierOn("R", "-");
-        }
-        else if (value == 0f)
-        {
-            PeltierReverse("R", "-");
-        }
-        else
-        {
-            PeltierOff("R", "-");
-        }
-    }
-    #endregion
     #region Peltier Base Functions
-    public void PeltierOn(string id, string dummy)
+    /** Describtion
+     * send a serial message to the arduino to change the current flow of the curuit of the ThermalFee(t/d)back
+     * "-": don't change current flow
+     * "n": let the current flow
+     * "r": reverse the current flow
+     * "o": break the current flow
+     */
+    public void ActuatePeltiers(string front = "-", string back = "-", string right = "-", string left = "-", string dummy = "-")
     {
-        string signal = id + "n" + dummy + "\n";
-#if !UNITY_ANDROID
-        if (serialPort!= null && serialPort.IsOpen)
-        {
-            serialPort.Write(signal);
-            serialPort.BaseStream.Flush();
-        }
-        else
-#endif
-            if (useVisualization)
-            PeltierStatusVis(signal);
-    }
-
-    public void PeltierOff(string id, string dummy)
-    {
-        string signal = id + "o" + dummy + "\n";
+        string signal = front + back + right + left + dummy + "\n";
 #if !UNITY_ANDROID
         if (serialPort != null && serialPort.IsOpen)
         {
@@ -377,23 +304,75 @@ public class ArduinoController : MonoBehaviour
         }
         else
 #endif
-            if (useVisualization)
-            PeltierStatusVis(signal);
+            if (usingVisualization)
+            VisualizePeltierStatus(signal);
     }
 
-    public void PeltierReverse(string id, string dummy)
+    public void KillPeltiers()
     {
-        string signal = id + "r" + dummy + "\n";
-#if !UNITY_ANDROID
-        if (serialPort != null && serialPort.IsOpen)
-        {
-            serialPort.Write(signal);
-            serialPort.BaseStream.Flush();
-        }
-        else
-#endif
-            if (useVisualization)
-            PeltierStatusVis(signal);
+        ActuatePeltiers("o", "o", "o", "o", "o");
     }
+
+    public void ActuatePeltierIdNormal(string id, string hookedDummy = "-")
+    {
+        switch (id)
+        {
+            case "F":
+                ActuatePeltiers(front: "n", dummy: hookedDummy);
+                break;
+            case "B":
+                ActuatePeltiers(back: "n", dummy: hookedDummy);
+                break;
+            case "R":
+                ActuatePeltiers(right: "n", dummy: hookedDummy);
+                break;
+            case "L":
+                ActuatePeltiers(left: "n", dummy: hookedDummy);
+                break;
+            default:
+                break;
+        }
+    }
+    public void ActuatePelterIdOff(string id, string hookedDummy = "-")
+    {
+        switch (id)
+        {
+            case "F":
+                ActuatePeltiers(front: "o", dummy: hookedDummy);
+                break;
+            case "B":
+                ActuatePeltiers(back: "o", dummy: hookedDummy);
+                break;
+            case "R":
+                ActuatePeltiers(right: "o", dummy: hookedDummy);
+                break;
+            case "L":
+                ActuatePeltiers(left: "o", dummy: hookedDummy);
+                break;
+            default:
+                break;
+        }
+    }
+    public void ActuatePeltierIdReverse(string id, string hookedDummy = "-")
+    {
+        switch (id)
+        {
+            case "F":
+                ActuatePeltiers(front: "r", dummy: hookedDummy);
+                break;
+            case "B":
+                ActuatePeltiers(back: "r", dummy: hookedDummy);
+                break;
+            case "R":
+                ActuatePeltiers(right: "r", dummy: hookedDummy);
+                break;
+            case "L":
+                ActuatePeltiers(left: "r", dummy: hookedDummy);
+                break;
+            default:
+                break;
+        }
+    }
+
     #endregion
 }

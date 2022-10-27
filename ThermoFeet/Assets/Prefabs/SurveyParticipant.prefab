@@ -96,12 +96,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8031dc87ee32c9b4f975b26dcd44ff40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trackZoneBottom: -150
+  trackZoneTop: 11
   directionIndicator: {fileID: 0}
-  angle: 0
+  directionConfirmButton: {fileID: 0}
+  likertConfirmButton: {fileID: 0}
   nAngle:
     m_InternalValue: 0
-  nLikerAnswer:
+  nLikertAnswer:
     m_InternalValue: 0
-  trackZoneBottom: -50
-  trackZoneTop: 11
-  uiHolder: {fileID: 0}
+  nStartTime:
+    m_InternalValue: 0
+  nEndTime:
+    m_InternalValue: 0

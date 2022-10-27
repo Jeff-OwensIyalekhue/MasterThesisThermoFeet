@@ -6,19 +6,36 @@ using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 
+
 public class AppManager : MonoBehaviour
 {
     public static AppManager Singleton;
 
+    [Header("References")]
+    public CircularPeltierController peltierController;
+    public SurveyServerManager surveyServerManager;
+
     public TMP_Text connectionInfos;
     public Image directionIndicator;
+    public Button directionConfirmationButton;
+    public Button likertConfirmationButton;
+    public GameObject controlUI;
     public GameObject questionUI;
     public GameObject networkUI;
+    public List<GameObject> controlPanels;
     public bool isConnected;
 
     public bool isParticipant;
-    private string connectionAddress;
-    private int connectionPort = 7777;
+
+    public float signalStartTime;
+    public float signalDetectionTime;
+    public int guessedDirection;
+    public int certaintyOfGuess;
+    public bool isTrialFinished = false;
+
+    [Header("System Settings")]
+    [SerializeField] private string connectionAddress;
+    [SerializeField] private int connectionPort = 7777;
 
     private void Awake()
     {
@@ -47,7 +64,7 @@ public class AppManager : MonoBehaviour
             connectionInfos.text = "Connected clients: " + NetworkManager.Singleton.ConnectedClientsList.Count;
     }
 
-    #region Network Functions
+#region Network Functions
     public void SetIP(string ip)
     {
         connectionAddress = ip;
@@ -67,9 +84,23 @@ public class AppManager : MonoBehaviour
             isConnected = NetworkManager.Singleton.StartClient();
         }
         else
+        {
+            controlUI.SetActive(true);
             isConnected = NetworkManager.Singleton.StartServer();
+        }
     }
-    #endregion
+#endregion
+
+    public void SwitchControlPanels(int value)
+    {
+        for (int i = 0; i < controlPanels.Count; i++)
+        {
+            if (i == value)
+                controlPanels[i].SetActive(true);
+            else
+                controlPanels[i].SetActive(false);
+        }
+    }
 
     public void EndApp()
     {
