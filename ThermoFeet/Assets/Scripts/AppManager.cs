@@ -14,6 +14,7 @@ public class AppManager : MonoBehaviour
     [Header("References")]
     public CircularPeltierController peltierController;
     public SurveyServerManager surveyServerManager;
+    public SurveyClientManager surveyClientManager;
 
     public TMP_Text connectionInfos;
     public Image directionIndicator;
@@ -22,6 +23,8 @@ public class AppManager : MonoBehaviour
     public GameObject controlUI;
     public GameObject questionUI;
     public GameObject networkUI;
+    public TMP_InputField ipInputField;
+    public TMP_InputField portInputField;
     public List<GameObject> controlPanels;
     public bool isConnected;
 
@@ -29,6 +32,7 @@ public class AppManager : MonoBehaviour
 
     public float signalStartTime;
     public float signalDetectionTime;
+    public float guessSubmissionTime;
     public int guessedDirection;
     public int certaintyOfGuess;
     public bool isTrialFinished = false;
@@ -44,11 +48,18 @@ public class AppManager : MonoBehaviour
         else
             Destroy(this);
 
+
 #if UNITY_ANDROID
         isParticipant = true;
 #else
         isParticipant = false;
 #endif
+    }
+
+    private void Start()
+    {
+        ipInputField.text = NetworkManager.Singleton.GetComponent<UnityTransport>().ConnectionData.Address;
+        portInputField.text = NetworkManager.Singleton.GetComponent<UnityTransport>().ConnectionData.Port.ToString();
     }
 
     private void Update()

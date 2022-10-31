@@ -43,10 +43,7 @@ public class CircularPeltierController : MonoBehaviour
 
     private bool runningIntervalA = false;
     private bool runningIntervalB = false;
-
-    private bool isHeatedUP;
-
-    private bool isTimerRunning = false;
+    
     private int prevAngle = 0;
     #endregion
 
@@ -274,14 +271,6 @@ public class CircularPeltierController : MonoBehaviour
         }
     }
 
-    //private void RunTimer()
-    //{
-    //    if (timerTime > 0)
-    //    {
-    //        isTimerRunning = true;
-    //        TimedActivation(timerTime);
-    //    }
-    //}
     public void SetSpeed(string speedText)
     {
         try
@@ -296,26 +285,6 @@ public class CircularPeltierController : MonoBehaviour
             speedInput.text = null;
         }
     }
-    //public void TimedActivation(float time)
-    //{
-    //    StartCoroutine(_TimedActivation(time));
-    //}
-    //IEnumerator _TimedActivation(float time)
-    //{
-    //    if (time > 0)
-    //    {
-    //        yield return new WaitForSeconds(1);
-    //        time--;
-    //        timerInput.text = "" + time;
-    //        TimedActivation(time);
-    //    }
-    //    else
-    //    {
-    //        isTimerRunning = false;
-    //        timerInput.text = "" + timerTime;
-    //        TogglePause();
-    //    }
-    //}
 
     public void directionalPeltierControl()
     {

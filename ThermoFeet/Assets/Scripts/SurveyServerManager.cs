@@ -19,6 +19,8 @@ public class SurveyServerManager : NetworkBehaviour
     void Awake()
     {
         displayChangeButton.onClick.AddListener(SwitchDisplay);
+        if(AppManager.Singleton.surveyServerManager == null)
+            AppManager.Singleton.surveyServerManager = this;
     }
 
     void Update()
@@ -30,6 +32,18 @@ public class SurveyServerManager : NetworkBehaviour
     public void SendSignalStartClientRpc()
     {
         AppManager.Singleton.signalStartTime = Time.time;
+    }
+
+    [ClientRpc]
+    public void SendSignalDetectionClientRpc()
+    {
+        AppManager.Singleton.signalDetectionTime = Time.time - AppManager.Singleton.signalStartTime;
+    }
+
+    [ClientRpc]
+    public void SendGuessSubmissionClientRpc()
+    {
+        AppManager.Singleton.guessSubmissionTime = Time.time - AppManager.Singleton.signalStartTime;
     }
 
     public void SwitchDisplay()
@@ -64,11 +78,12 @@ public class SurveyServerManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void DisplayMessageClientRpc()
+    public void DisplayMessageClientRpc(string message = "Wait for further instructions.")
     {
-        messageText.text = "Hello" + Random.Range(0, 10);
+        messageText.text = message;
         messageUI.SetActive(true);
         directionUI.SetActive(false);
         likertUI.SetActive(false);
+
     }
 }

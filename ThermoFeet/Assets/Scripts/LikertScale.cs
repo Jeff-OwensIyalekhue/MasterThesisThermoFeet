@@ -24,7 +24,7 @@ public class LikertScale : MonoBehaviour
     {
         if (toggles[i].isOn)
             AppManager.Singleton.certaintyOfGuess = i;
-        Debug.Log("likert" + i);
+        //Debug.Log("likert" + i);
 
     }
 }

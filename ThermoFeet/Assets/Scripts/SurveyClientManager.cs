@@ -15,10 +15,11 @@ public class SurveyClientManager : NetworkBehaviour
     public Button likertConfirmButton;
 
     [Header("Network Vairables")]
-    public NetworkVariable<int> nAngle = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
-    public NetworkVariable<int> nLikertAnswer = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
+    public NetworkVariable<int> nGuessedDirection = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
+    public NetworkVariable<int> nCertaintyOfGuess = new NetworkVariable<int>(writePerm: NetworkVariableWritePermission.Owner);
     public NetworkVariable<float> nStartTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
-    public NetworkVariable<float> nEndTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
+    public NetworkVariable<float> nDetectionTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
+    public NetworkVariable<float> nSubmitTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Owner);
 
     private int angle;
     private InputActions inputActions;
@@ -28,19 +29,20 @@ public class SurveyClientManager : NetworkBehaviour
         inputActions = new InputActions();
         inputActions.Standard.Enable();
 
+        if (AppManager.Singleton.surveyClientManager == null)
+            AppManager.Singleton.surveyClientManager = this;
+
         directionIndicator = AppManager.Singleton.directionIndicator;
 
         directionConfirmButton = AppManager.Singleton.directionConfirmationButton;
         directionConfirmButton.onClick.AddListener(() =>
         {
             SendDirectionGuessServerRpc();
-            nEndTime.Value = 0;
+            directionConfirmButton.gameObject.SetActive(false);
         });
 
         likertConfirmButton = AppManager.Singleton.likertConfirmationButton;
         likertConfirmButton.onClick.AddListener(() => { SendLikertAnwserServerRpc(); });
-
-        nEndTime.Value = 0;
     }
 
     // Update is called once per frame
@@ -51,10 +53,16 @@ public class SurveyClientManager : NetworkBehaviour
             if (nStartTime.Value != AppManager.Singleton.signalStartTime)
                 nStartTime.Value = AppManager.Singleton.signalStartTime;
 
+            if (nDetectionTime.Value != AppManager.Singleton.signalDetectionTime)
+                nDetectionTime.Value = AppManager.Singleton.signalDetectionTime;
+
+            if (nSubmitTime.Value != AppManager.Singleton.guessSubmissionTime)
+                nSubmitTime.Value = AppManager.Singleton.guessSubmissionTime;
+
             SetDirection();
 
-            if (nLikertAnswer.Value != AppManager.Singleton.certaintyOfGuess)
-                nLikertAnswer.Value = AppManager.Singleton.certaintyOfGuess;
+            if (nCertaintyOfGuess.Value != AppManager.Singleton.certaintyOfGuess)
+                nCertaintyOfGuess.Value = AppManager.Singleton.certaintyOfGuess;
         }
     }
 
@@ -67,15 +75,15 @@ public class SurveyClientManager : NetworkBehaviour
             && Vector3.Distance(directionIndicator.transform.position, pointer) < ((width / 2) + trackZoneTop)
             && inputActions.Standard.Click.IsPressed())
         {
-            if (nEndTime.Value == 0)
+            if (!directionConfirmButton.gameObject.activeSelf)
             {
-                StopActuationServerRpc();
-                nEndTime.Value = Time.time;
+                SendDetectionServerRpc();
+                directionConfirmButton.gameObject.SetActive(true);
             }
             Vector2 pointerRelative = new Vector2(pointer.x - directionIndicator.transform.position.x, pointer.y - directionIndicator.transform.position.y);
             float angleToCenter = Mathf.Atan2(pointerRelative.y, pointerRelative.x) * Mathf.Rad2Deg;
             angle = (int)(angleToCenter + 360) % 360;
-            nAngle.Value = angle;
+            nGuessedDirection.Value = angle;
             directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
         }
     }
@@ -87,18 +95,27 @@ public class SurveyClientManager : NetworkBehaviour
     }
 
     [ServerRpc]
+    public void SendDetectionServerRpc()
+    {
+        AppManager.Singleton.surveyServerManager.SendSignalDetectionClientRpc();
+    }
+
+    [ServerRpc]
     public void SendDirectionGuessServerRpc()
     {
         StopActuationServerRpc();
-        AppManager.Singleton.guessedDirection = nAngle.Value;
-        AppManager.Singleton.signalDetectionTime = nEndTime.Value - nStartTime.Value;
+        AppManager.Singleton.guessedDirection = nGuessedDirection.Value;
+        AppManager.Singleton.surveyServerManager.SendGuessSubmissionClientRpc();
         AppManager.Singleton.surveyServerManager.DisplayLikertClientRpc();
+        AppManager.Singleton.signalDetectionTime = nDetectionTime.Value;
+        AppManager.Singleton.guessSubmissionTime = nSubmitTime.Value;
+        //erverRpc: A client invoked remote procedure call received by and executed on the server-side !!! CHANGE!!
     }
 
     [ServerRpc]
     public void SendLikertAnwserServerRpc()
     {
-        AppManager.Singleton.certaintyOfGuess = nLikertAnswer.Value;
+        AppManager.Singleton.certaintyOfGuess = nCertaintyOfGuess.Value;
         AppManager.Singleton.isTrialFinished = true;
         AppManager.Singleton.surveyServerManager.DisplayMessageClientRpc();
     }
