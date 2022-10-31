@@ -42,11 +42,11 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
     }
 
-    public void StartTrial(int direction)
+    public void StartSingleTrial(int direction)
     {
-        StartCoroutine(RunTrial(direction));
+        StartCoroutine(RunSingleTrial(direction));
     }
-    IEnumerator RunTrial(int direction)
+    IEnumerator RunSingleTrial(int direction)
     {
         if (isTrialRunning)
             yield return null;
@@ -68,7 +68,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         AppManager.Singleton.peltierController.StartActuation();
     }
 
-    public void TestFunc()
+    public void BeginnMethodTrails()
     {
         List<int> t = new List<int>();
 
@@ -104,7 +104,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         trialInformationText.text = "Trial " + trialCount;
         int i = UnityEngine.Random.Range(0, directionsLeft.Count);
 
-        StartCoroutine(RunTrial(directionsLeft[i]));
+        StartCoroutine(RunSingleTrial(directionsLeft[i]));
 
         yield return new WaitWhile(() => { return isTrialRunning; });
 

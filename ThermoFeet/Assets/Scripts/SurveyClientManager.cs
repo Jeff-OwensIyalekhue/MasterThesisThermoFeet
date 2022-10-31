@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using Unity.Netcode;
 
 public class SurveyClientManager : NetworkBehaviour
@@ -109,7 +108,6 @@ public class SurveyClientManager : NetworkBehaviour
         AppManager.Singleton.surveyServerManager.DisplayLikertClientRpc();
         AppManager.Singleton.signalDetectionTime = nDetectionTime.Value;
         AppManager.Singleton.guessSubmissionTime = nSubmitTime.Value;
-        //erverRpc: A client invoked remote procedure call received by and executed on the server-side !!! CHANGE!!
     }
 
     [ServerRpc]

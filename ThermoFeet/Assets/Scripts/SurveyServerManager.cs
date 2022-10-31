@@ -3,14 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
-using UnityEngine.UI;
 
 public class SurveyServerManager : NetworkBehaviour
 {
-    private bool isShowingDirection = false;
-    public TMP_Text displayChangeText;
-    public Button displayChangeButton;
-
     public GameObject directionUI;
     public GameObject likertUI;
     public GameObject messageUI;
@@ -18,14 +13,8 @@ public class SurveyServerManager : NetworkBehaviour
 
     void Awake()
     {
-        displayChangeButton.onClick.AddListener(SwitchDisplay);
         if(AppManager.Singleton.surveyServerManager == null)
             AppManager.Singleton.surveyServerManager = this;
-    }
-
-    void Update()
-    {
-
     }
 
     [ClientRpc]
@@ -44,21 +33,6 @@ public class SurveyServerManager : NetworkBehaviour
     public void SendGuessSubmissionClientRpc()
     {
         AppManager.Singleton.guessSubmissionTime = Time.time - AppManager.Singleton.signalStartTime;
-    }
-
-    public void SwitchDisplay()
-    {
-        isShowingDirection = !isShowingDirection;
-        if (isShowingDirection)
-        {
-            displayChangeText.text = "show message";
-            DisplayDirectionClientRpc();
-        }
-        else
-        {
-            displayChangeText.text = "show direction";
-            DisplayMessageClientRpc();
-        }
     }
 
     [ClientRpc]
