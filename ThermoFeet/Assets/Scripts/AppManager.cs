@@ -15,6 +15,7 @@ public class AppManager : MonoBehaviour
     public CircularPeltierController peltierController;
     public SurveyServerManager surveyServerManager;
     public SurveyClientManager surveyClientManager;
+    public ThermalFeedbackManager feedbackManager;
 
     public TMP_Text connectionInfos;
     public Image directionIndicator;
@@ -38,8 +39,8 @@ public class AppManager : MonoBehaviour
     public bool isTrialFinished = false;
 
     [Header("System Settings")]
-    [SerializeField] private string connectionAddress;
-    [SerializeField] private int connectionPort = 7777;
+    public string connectionAddress;
+    public int connectionPort = 7777;
 
     private void Awake()
     {
@@ -115,6 +116,9 @@ public class AppManager : MonoBehaviour
 
     public void EndApp()
     {
+#if !UNITY_ANDROID
+        feedbackManager.SaveStudyParams();
+#endif
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.ExitPlaymode();
 #else

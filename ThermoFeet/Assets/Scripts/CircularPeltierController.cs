@@ -43,7 +43,7 @@ public class CircularPeltierController : MonoBehaviour
 
     private bool runningIntervalA = false;
     private bool runningIntervalB = false;
-    
+
     private int prevAngle = 0;
     #endregion
 
@@ -78,17 +78,27 @@ public class CircularPeltierController : MonoBehaviour
         if (isPaused)
             return;
 
-        if (actuationType == _ActuationType.Interpolation)
+        switch (actuationType)
         {
-            InterpolationActuation(angleOffseted);
-        }
-        else if (actuationType == _ActuationType.Direction)
-        {
-            DirectionActuation(angleOffseted);
-        }
-        else if (actuationType == _ActuationType.Push)
-        {
-            PushActuation(angleOffseted);
+            case _ActuationType.Interpolation:
+                InterpolationActuation(angleOffseted);
+                break;
+            case _ActuationType.DirectionHot:
+                isPolarityNormal = true;
+                DirectionActuation(angleOffseted);
+                break;
+            case _ActuationType.DirectionCold:
+                isPolarityNormal = false;
+                DirectionActuation(angleOffseted);
+                break;
+            case _ActuationType.PushCH:
+                PushActuationHotCold(angleOffseted);
+                break;
+            case _ActuationType.Push:
+                PushActuation(angleOffseted);
+                break;
+            default:
+                break;
         }
     }
 
@@ -130,20 +140,27 @@ public class CircularPeltierController : MonoBehaviour
         Pause(isPaused);
     }
     #endregion
-   
+
     public void SwitchActuationMethod(int value)
     {
         switch (value)
         {
             case 0:
-                actuationType = _ActuationType.Direction;
+                actuationType = _ActuationType.DirectionHot;
                 break;
             case 1:
-                actuationType = _ActuationType.Interpolation;
+                actuationType = _ActuationType.DirectionCold;
                 break;
             case 2:
+                actuationType = _ActuationType.Interpolation;
+                break;
+            case 3:
+                actuationType = _ActuationType.PushCH;
+                break;
+            case 4:
                 actuationType = _ActuationType.Push;
                 break;
+
             default:
                 break;
         }
@@ -474,14 +491,14 @@ public class CircularPeltierController : MonoBehaviour
     }
     #endregion
 
-    #region PushActuation
-    public void PushActuation(int angle)
+    #region PushActuationHotCold
+    public void PushActuationHotCold(int angle)
     {
         if (runningIntervalA)
             return;
-        StartCoroutine(_PushActuation(angle));
+        StartCoroutine(_PushActuationHotCold(angle));
     }
-    IEnumerator _PushActuation(int angle)
+    IEnumerator _PushActuationHotCold(int angle)
     {
         runningIntervalA = true;
         string signal = "-";
@@ -556,7 +573,183 @@ public class CircularPeltierController : MonoBehaviour
             arduinoController.ActuatePeltiers(right: signal, back: signal);
         }
 
-        yield return new WaitForSeconds(actuationTime/2);
+        yield return new WaitForSeconds(actuationTime / 2);
+
+        arduinoController.KillPeltiers();
+        yield return new WaitForSeconds(cooldownTime);
+        runningIntervalA = false;
+    }
+    #endregion
+
+    #region PushActuation
+    public void PushActuation(int angle)
+    {
+        if (runningIntervalA)
+            return;
+        StartCoroutine(_PushActuation(angle));
+    }
+    IEnumerator _PushActuation(int angle)
+    {
+        runningIntervalA = true;
+        string signal = "-";
+
+        if (isPolarityNormal)
+        {
+            signal = "n";
+        }
+        else
+        {
+            signal = "r";
+        }
+
+
+        if (angle == 0 || angle == 360)
+        {
+            arduinoController.ActuatePeltiers(left: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(right: signal, dummy: "n");
+        }
+        else if (angle > 0 && angle < 90)
+        {
+            arduinoController.ActuatePeltiers(left: signal, back: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(right: signal, front: signal);
+        }
+        else if (angle == 90)
+        {
+            arduinoController.ActuatePeltiers(back: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(front: signal, dummy: "n");
+        }
+        else if (angle > 90 && angle < 180)
+        {
+            arduinoController.ActuatePeltiers(back: signal, right: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(front: signal, left: signal);
+        }
+        else if (angle == 180)
+        {
+            arduinoController.ActuatePeltiers(right: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(left: signal, dummy: "n");
+        }
+        else if (angle > 180 && angle < 270)
+        {
+            arduinoController.ActuatePeltiers(right: signal, front: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(left: signal, back: signal);
+        }
+        else if (angle == 270)
+        {
+            arduinoController.ActuatePeltiers(front: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(back: signal, dummy: "n");
+        }
+        else if (angle > 270 && angle < 360)
+        {
+            arduinoController.ActuatePeltiers(left: signal, front: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(right: signal, back: signal);
+        }
+
+        yield return new WaitForSeconds(actuationTime / 2);
+
+        arduinoController.KillPeltiers();
+        yield return new WaitForSeconds(cooldownTime);
+        runningIntervalA = false;
+    }
+    #endregion
+
+
+
+    #region PullActuation
+    public void PullActuation(int angle)
+    {
+        if (runningIntervalA)
+            return;
+        StartCoroutine(_PullActuation(angle));
+    }
+    IEnumerator _PullActuation(int angle)
+    {
+        runningIntervalA = true;
+        string signal = "-";
+
+        if (isPolarityNormal)
+        {
+            signal = "n";
+        }
+        else
+        {
+            signal = "r";
+        }
+
+
+        if (angle == 0 || angle == 360)
+        {
+            arduinoController.ActuatePeltiers(right: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(left: signal, dummy: "n");
+        }
+        else if (angle > 0 && angle < 90)
+        {
+            arduinoController.ActuatePeltiers(right: signal, front: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(left: signal, back: signal);
+        }
+        else if (angle == 90)
+        {
+            arduinoController.ActuatePeltiers(front: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(back: signal, dummy: "n");
+        }
+        else if (angle > 90 && angle < 180)
+        {
+            arduinoController.ActuatePeltiers(front: signal, left: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(back: signal, right: signal);
+        }
+        else if (angle == 180)
+        {
+            arduinoController.ActuatePeltiers(left: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(right: signal, dummy: "n");
+        }
+        else if (angle > 180 && angle < 270)
+        {
+            arduinoController.ActuatePeltiers(left: signal, back: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(right: signal, front: signal);
+        }
+        else if (angle == 270)
+        {
+            arduinoController.ActuatePeltiers(back: signal, dummy: "n");
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(front: signal, dummy: "n");
+        }
+        else if (angle > 270 && angle < 360)
+        {
+            arduinoController.ActuatePeltiers(right: signal, back: signal);
+            yield return new WaitForSeconds(actuationTime / 2);
+            arduinoController.KillPeltiers();
+            arduinoController.ActuatePeltiers(left: signal, front: signal);
+        }
+
+        yield return new WaitForSeconds(actuationTime / 2);
 
         arduinoController.KillPeltiers();
         yield return new WaitForSeconds(cooldownTime);
