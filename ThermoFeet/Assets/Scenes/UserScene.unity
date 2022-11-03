@@ -1323,7 +1323,7 @@ MonoBehaviour:
   speedInput: {fileID: 1317271041}
   actuationTime: 1
   baseActuation: 0.75
-  cooldownTime: 0.5
+  cooldownTime: 0.75
   timerTime: 0
   trackZoneBottom: -20
   trackZoneTop: 0

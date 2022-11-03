@@ -19,7 +19,7 @@ public class ThermalFeedbackManager : MonoBehaviour
     public float maxActuationTime = 20;
     public bool isTrialRunning = false;
 
-    private List<_ActuationType> _acts = new List<_ActuationType>();
+    private int trialsIter = 0;
     private Coroutine coroutineMaxActuation;
 
     [Header("References")]
@@ -58,7 +58,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
     }
 
-    #region Set Functions
+#region Set Functions
     public void SetSavePath(string path)
     {
         string tmp = pathToSaveLocation;
@@ -109,7 +109,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
 
     }
-    #endregion
+#endregion
 
     public void StartSingleTrial(int direction)
     {
@@ -139,7 +139,6 @@ public class ThermalFeedbackManager : MonoBehaviour
         AppManager.Singleton.surveyServerManager.SendSignalStartClientRpc();
         AppManager.Singleton.peltierController.StartActuation();
         coroutineMaxActuation = StartCoroutine(MaximumActuationStop());
-
     }
 
     IEnumerator MaximumActuationStop()
@@ -148,7 +147,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         AppManager.Singleton.peltierController.Pause(true);
     }
 
-    public void BeginnMethodTrails()
+    public void InitTrails()
     {
         List<int> t = new List<int>();
 
@@ -159,10 +158,9 @@ public class ThermalFeedbackManager : MonoBehaviour
 
         participant.trials.Clear();
 
-        StartMethodTrials(participant.actuationType, t);
+        RecusiveTrials(participant.actuationType, t);
     }
-
-    public void StartMethodTrials(_ActuationType actuationType, List<int> directionList)
+    public void RecusiveTrials(_ActuationType actuationType, List<int> directionList)
     {
         if (directionList.Count <= 0)
         {
@@ -170,11 +168,26 @@ public class ThermalFeedbackManager : MonoBehaviour
             StudyLogging();
 #endif
             trialInformationText.text = "start trial group";
-            _acts.Add(participant.actuationType);
-            string s = "trails done:";
-            foreach (_ActuationType item in _acts)
+            trialsIter++;
+            if(trialsIter == 4)
+                participant.actuationType = _ActuationType.DirectionCold;
+            if(trialsIter == 8)
             {
-                s += "\n" + item.ToString() + ",";
+                participant.actuationType = _ActuationType.DirectionHot;
+                participant.id++;
+                trialsIter = 0;
+            }
+
+            string s = "trails done:\n";
+            if(trialsIter < 4)
+            {
+                s += "hot: " + trialsIter + "/4\ncold: 0/4";
+            }
+            else
+            {
+                int i = trialsIter % 4;
+
+                s += "hot: 4/4\ncold: " + i + "/4";
             }
             actuationInoText.text = s;
             trialDirections.incrementTrialNumber();
@@ -183,9 +196,9 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
 
         participant.actuationType = actuationType;
-        StartCoroutine(RunMethodTrial(directionList));
+        StartCoroutine(TrialsCoroutine(directionList));
     }
-    IEnumerator RunMethodTrial(List<int> directionsLeft)
+    IEnumerator TrialsCoroutine(List<int> directionsLeft)
     {
         int trialCount = 8 - directionsLeft.Count + 1;
         trialInformationText.text = "Trial " + trialCount + "/" + 8;
@@ -203,10 +216,10 @@ public class ThermalFeedbackManager : MonoBehaviour
 
         directionsLeft.RemoveAt(0);
 
-        StartMethodTrials(participant.actuationType, directionsLeft);
+        RecusiveTrials(participant.actuationType, directionsLeft);
     }
 
-    #region LogFile Functions
+#region LogFile Functions
 #if !UNITY_ANDROID
     public void SaveStudyParams()
     {
@@ -261,7 +274,6 @@ public class ThermalFeedbackManager : MonoBehaviour
             file.Close();
         }
     }
-
     public void LoadParticipantData()
     {
         if (File.Exists(pathToSaveLocation + "/generatedTasks.dat"))
@@ -321,7 +333,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
     }
 #endif
-    #endregion
+#endregion
 }
 
 [Serializable]
@@ -384,7 +396,6 @@ public class TrialDiections
         trialNumber = (trialNumber + 1) % 8;
     }
 }
-
 
 [Serializable]
 public class ParticipantData
