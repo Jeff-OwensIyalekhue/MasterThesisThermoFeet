@@ -148,6 +148,9 @@ public class ArduinoController : MonoBehaviour
     private void VisualizePeltierStatus(string signal)
     {
 #if !UNITY_ANDROID
+        if (frontVis == null || backVis == null || rightVis == null || leftVis == null)
+            return;
+
         if (serialPort != null && serialPort.IsOpen)
         {
             switch (signal)
@@ -283,7 +286,7 @@ public class ArduinoController : MonoBehaviour
             }
         }
 #endif
-}
+    }
 
     #region Peltier Base Functions
     /** Describtion

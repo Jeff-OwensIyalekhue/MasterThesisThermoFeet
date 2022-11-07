@@ -9,13 +9,6 @@ public class LikertScale : MonoBehaviour
 
     void Awake()
     {
-        //for (int i = 0; i < toggles.Count; i++)
-        //{
-        //    toggles[i].onValueChanged.AddListener((bool isOn) =>
-        //    {
-        //        SetAnswer(i);
-        //    });
-        //}
         toggles[2].isOn = true;
         SetAnswer(2);
     }

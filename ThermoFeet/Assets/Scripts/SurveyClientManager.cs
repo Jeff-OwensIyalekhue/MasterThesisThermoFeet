@@ -9,7 +9,7 @@ public class SurveyClientManager : NetworkBehaviour
     [Header("Settings")]
     public float trackZoneBottom = -10;
     public float trackZoneTop = 11;
-    public Image directionIndicator;
+    //public Image directionIndicator;
     public Button directionConfirmButton;
     public Button likertConfirmButton;
 
@@ -31,7 +31,7 @@ public class SurveyClientManager : NetworkBehaviour
         if (AppManager.Singleton.surveyClientManager == null)
             AppManager.Singleton.surveyClientManager = this;
 
-        directionIndicator = AppManager.Singleton.directionIndicator;
+        //directionIndicator = AppManager.Singleton.directionIndicator;
 
         directionConfirmButton = AppManager.Singleton.directionConfirmationButton;
         directionConfirmButton.onClick.AddListener(() =>
@@ -58,34 +58,41 @@ public class SurveyClientManager : NetworkBehaviour
             if (nSubmitTime.Value != AppManager.Singleton.guessSubmissionTime)
                 nSubmitTime.Value = AppManager.Singleton.guessSubmissionTime;
 
-            SetDirection();
+            //SetDirectionCircular();
 
             if (nCertaintyOfGuess.Value != AppManager.Singleton.certaintyOfGuess)
                 nCertaintyOfGuess.Value = AppManager.Singleton.certaintyOfGuess;
         }
     }
 
-    public void SetDirection()
+    public void SetDirection(int dir)
     {
-        Vector2 pointer = inputActions.Standard.Pointer.ReadValue<Vector2>();
-        float width = directionIndicator.rectTransform.sizeDelta.x * directionIndicator.rectTransform.lossyScale.x;
-
-        if (Vector3.Distance(directionIndicator.transform.position, pointer) > ((width / 2) + trackZoneBottom)
-            && Vector3.Distance(directionIndicator.transform.position, pointer) < ((width / 2) + trackZoneTop)
-            && inputActions.Standard.Click.IsPressed())
-        {
-            if (!directionConfirmButton.gameObject.activeSelf)
-            {
-                SendDetectionServerRpc();
-                directionConfirmButton.gameObject.SetActive(true);
-            }
-            Vector2 pointerRelative = new Vector2(pointer.x - directionIndicator.transform.position.x, pointer.y - directionIndicator.transform.position.y);
-            float angleToCenter = Mathf.Atan2(pointerRelative.y, pointerRelative.x) * Mathf.Rad2Deg;
-            angle = (int)(angleToCenter + 360) % 360;
-            nGuessedDirection.Value = angle;
-            directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
-        }
+        SendDetectionServerRpc();
+        directionConfirmButton.gameObject.SetActive(true);
+        nGuessedDirection.Value = dir;
     }
+
+    //public void SetDirectionCircular()
+    //{
+    //    Vector2 pointer = inputActions.Standard.Pointer.ReadValue<Vector2>();
+    //    float width = directionIndicator.rectTransform.sizeDelta.x * directionIndicator.rectTransform.lossyScale.x;
+
+    //    if (Vector3.Distance(directionIndicator.transform.position, pointer) > ((width / 2) + trackZoneBottom)
+    //        && Vector3.Distance(directionIndicator.transform.position, pointer) < ((width / 2) + trackZoneTop)
+    //        && inputActions.Standard.Click.IsPressed())
+    //    {
+    //        if (!directionConfirmButton.gameObject.activeSelf)
+    //        {
+    //            SendDetectionServerRpc();
+    //            directionConfirmButton.gameObject.SetActive(true);
+    //        }
+    //        Vector2 pointerRelative = new Vector2(pointer.x - directionIndicator.transform.position.x, pointer.y - directionIndicator.transform.position.y);
+    //        float angleToCenter = Mathf.Atan2(pointerRelative.y, pointerRelative.x) * Mathf.Rad2Deg;
+    //        angle = (int)(angleToCenter + 360) % 360;
+    //        nGuessedDirection.Value = angle;
+    //        directionIndicator.rectTransform.eulerAngles = Vector3.forward * angle;
+    //    }
+    //}
 
     [ServerRpc]
     public void StopActuationServerRpc()

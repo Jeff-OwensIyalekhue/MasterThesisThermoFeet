@@ -732,6 +732,7 @@ MonoBehaviour:
   - {fileID: 8677651599277237948}
   - {fileID: 6470754195882729904}
   - {fileID: 5349366176527208146}
+  toggleGroup: {fileID: 1008759497135988323}
 --- !u!114 &1008759497135988323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -744,7 +745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
+  m_AllowSwitchOff: 1
 --- !u!1 &3476809329610656970
 GameObject:
   m_ObjectHideFlags: 0

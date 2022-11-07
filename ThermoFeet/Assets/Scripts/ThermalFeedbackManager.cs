@@ -15,10 +15,10 @@ public class ThermalFeedbackManager : MonoBehaviour
     public TrialDiections trialDirections = new TrialDiections();
     public int timeBetweenTrials = 10;
     public float rangeMaxStartTime = 10;
-
+    public int breakTimeBetweenTrials = 30;
     public float maxActuationTime = 20;
     public bool isTrialRunning = false;
-
+    public bool isGroupRunning = false;
     private int trialsIter = 0;
     private Coroutine coroutineMaxActuation;
 
@@ -26,7 +26,7 @@ public class ThermalFeedbackManager : MonoBehaviour
     public TMP_Dropdown actuationMethodDropdown;
     public TMP_Text trialInformationText;
     public TMP_Text sessionInfoText;
-    public TMP_Text actuationInoText;
+    public TMP_Text actuationInfoText;
     public TMP_InputField savePathText;
 
     [SerializeField] private string pathToSaveLocation = "C:/Users/Jeff-Owens/Desktop";
@@ -41,7 +41,7 @@ public class ThermalFeedbackManager : MonoBehaviour
     private void Awake()
     {
         actuationMethodDropdown.onValueChanged.AddListener((int value) => { SetActuationType(value); });
-        sessionInfoText.text = "Participant ID " + participant.id;
+        sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
         savePathText.text = pathToSaveLocation;
     }
 
@@ -58,7 +58,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
     }
 
-#region Set Functions
+    #region Set Functions
     public void SetSavePath(string path)
     {
         string tmp = pathToSaveLocation;
@@ -82,7 +82,28 @@ public class ThermalFeedbackManager : MonoBehaviour
     public void SetParticpantId(string value)
     {
         participant.id = int.Parse(value);
-        sessionInfoText.text = "Participant ID " + participant.id;
+        sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
+    }
+    public void SetTrialsDirections(string value)
+    {
+        trialDirections.trialNumber = int.Parse(value);
+        sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
+    }
+    public void SetTrialIter(string value)
+    {
+        trialsIter = int.Parse(value);
+        string s = "trails done:\n";
+        if (trialsIter < 4)
+        {
+            s += "hot: " + trialsIter + "/4\ncold: 0/4";
+        }
+        else
+        {
+            int i = trialsIter % 4;
+
+            s += "hot: 4/4\ncold: " + i + "/4";
+        }
+        actuationInfoText.text = s;
     }
 
     public void SetActuationType(int value)
@@ -109,7 +130,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
 
     }
-#endregion
+    #endregion
 
     public void StartSingleTrial(int direction)
     {
@@ -147,6 +168,38 @@ public class ThermalFeedbackManager : MonoBehaviour
         AppManager.Singleton.peltierController.Pause(true);
     }
 
+    public void CompleteStudyRun()
+    {
+        if (isGroupRunning)
+        {
+            StartCoroutine(WaitBetweenTrials());
+        }
+        else
+        {
+            isGroupRunning = true;
+            InitTrails();
+        }
+    }
+    IEnumerator WaitBetweenTrials()
+    {
+        for (int t = breakTimeBetweenTrials; t > 0; t--)
+        {
+            string msg = "New trials will start in: " + t + " seconds";
+            AppManager.Singleton.surveyServerManager.DisplayMessageClientRpc(msg);
+            yield return new WaitForSeconds(1);
+        }
+        InitTrails();
+    }
+
+    public void ForcePause()
+    {
+        StopAllCoroutines(); 
+        isTrialRunning = false;
+        isGroupRunning = false;
+        AppManager.Singleton.peltierController.Pause(true);
+        AppManager.Singleton.surveyServerManager.DisplayMessageClientRpc();
+    }
+
     public void InitTrails()
     {
         List<int> t = new List<int>();
@@ -169,17 +222,24 @@ public class ThermalFeedbackManager : MonoBehaviour
 #endif
             trialInformationText.text = "start trial group";
             trialsIter++;
-            if(trialsIter == 4)
-                participant.actuationType = _ActuationType.DirectionCold;
-            if(trialsIter == 8)
+            trialDirections.incrementTrialNumber();
+            if (trialsIter == 4)
             {
-                participant.actuationType = _ActuationType.DirectionHot;
+                if (participant.actuationType == _ActuationType.DirectionHot)
+                    participant.actuationType = _ActuationType.DirectionCold;
+                else
+                    participant.actuationType = _ActuationType.DirectionHot;
+            }
+            if (trialsIter == 8)
+            {
                 participant.id++;
+                sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
                 trialsIter = 0;
+                isGroupRunning = false;
             }
 
             string s = "trails done:\n";
-            if(trialsIter < 4)
+            if (trialsIter < 4)
             {
                 s += "hot: " + trialsIter + "/4\ncold: 0/4";
             }
@@ -189,9 +249,14 @@ public class ThermalFeedbackManager : MonoBehaviour
 
                 s += "hot: 4/4\ncold: " + i + "/4";
             }
-            actuationInoText.text = s;
-            trialDirections.incrementTrialNumber();
-            AppManager.Singleton.surveyServerManager.DisplayMessageClientRpc("This was the last trial for this actuation methode.");
+            actuationInfoText.text = s;
+            AppManager.Singleton.surveyServerManager.DisplayMessageClientRpc("This was the last trial for this group.");
+
+            if (isGroupRunning && trialsIter <= 7)
+            {
+                CompleteStudyRun();
+            }
+
             return;
         }
 
@@ -219,7 +284,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         RecusiveTrials(participant.actuationType, directionsLeft);
     }
 
-#region LogFile Functions
+    #region LogFile Functions
 #if !UNITY_ANDROID
     public void SaveStudyParams()
     {
@@ -244,7 +309,7 @@ public class ThermalFeedbackManager : MonoBehaviour
             pathToSaveLocation = data.savePath;
             trialDirections = data.trialDiections;
 
-            sessionInfoText.text = "Participant ID " + participant.id;
+            sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
             savePathText.text = pathToSaveLocation;
         }
 
@@ -303,13 +368,14 @@ public class ThermalFeedbackManager : MonoBehaviour
             finally { }
         }
 
-        string path = pathFolder + "/Participant" + participant.id + "_" + participant.actuationType + ".csv";
+        int n = trialsIter % 4;
+        string path = pathFolder + "/Participant" + participant.id + "_" + participant.actuationType + "_" + n + ".csv";
 
         int x = 0;
         while (File.Exists(path))
         {
             x++;
-            path = pathFolder + "/Participant" + participant.id + "_" + participant.actuationType + "(" + x + ").csv";
+            path = pathFolder + "/Participant" + participant.id + "_" + participant.actuationType + "_" + n +  "(" + x + ").csv";
         }
 
         using (StreamWriter fileCSV = new StreamWriter(path, true))
@@ -333,7 +399,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         }
     }
 #endif
-#endregion
+    #endregion
 }
 
 [Serializable]
