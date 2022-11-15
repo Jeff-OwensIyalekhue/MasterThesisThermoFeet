@@ -66,7 +66,7 @@ MonoBehaviour:
   - {fileID: 3100585772137633059}
   - {fileID: 2275962765795337902}
   - {fileID: 8127222760238566150}
-  directions: 000000002d0000005a00000087000000b4000000e1000000130100003b010000
+  directions: 000000002d0000005a00000087000000b4000000e10000000e0100003b010000
 --- !u!1 &483426474082932705
 GameObject:
   m_ObjectHideFlags: 0
@@ -2567,15 +2567,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_text
-      value: 'Point out the direction of the sensed thermal feedback:'
+      value: 'Point out the direction the thermal feedback leads you:'
       objectReference: {fileID: 0}
     - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_fontSize
-      value: 58.1
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_HorizontalAlignment
-      value: 1
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4678334923471052719, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_Name

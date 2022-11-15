@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class DirectionAnswerButtons : MonoBehaviour
 {
     public Button[] buttons;
-    public int[] directions = { 0, 45, 90, 135, 180, 225, 275, 315 };
+    public int[] directions = { 0, 45, 90, 135, 180, 225, 270, 315 };
     private Button activeDirections;
 
     private void OnEnable()

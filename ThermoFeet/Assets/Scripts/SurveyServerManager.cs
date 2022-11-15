@@ -60,4 +60,10 @@ public class SurveyServerManager : NetworkBehaviour
         likertUI.SetActive(false);
 
     }
+
+    [ClientRpc]
+    public void OpenQuestionnaireClientRpc()
+    {
+        Application.OpenURL(AppManager.Singleton.questionnaireUrl);
+    }
 }

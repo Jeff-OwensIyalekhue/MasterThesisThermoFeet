@@ -732,7 +732,6 @@ MonoBehaviour:
   - {fileID: 8677651599277237948}
   - {fileID: 6470754195882729904}
   - {fileID: 5349366176527208146}
-  toggleGroup: {fileID: 1008759497135988323}
 --- !u!114 &1008759497135988323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2327,7 +2326,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_text
-      value: You could detect the direction with certainy.
+      value: I am sure that I have chosen the right direction.
       objectReference: {fileID: 0}
     - target: {fileID: 4678334923471052717, guid: fb555a7992d7d964ca725d031fbf6de2, type: 3}
       propertyPath: m_fontSize

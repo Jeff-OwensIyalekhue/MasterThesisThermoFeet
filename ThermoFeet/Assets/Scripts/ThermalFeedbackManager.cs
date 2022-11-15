@@ -42,6 +42,24 @@ public class ThermalFeedbackManager : MonoBehaviour
     {
         actuationMethodDropdown.onValueChanged.AddListener((int value) => { SetActuationType(value); });
         sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
+        string s = "trails done:\n";
+        if (trialsIter < 4)
+        {
+            if (participant.actuationType == _ActuationType.DirectionHot)
+                s += "hot: " + trialsIter + "/4\ncold: 0/4";
+            else
+                s += "cold: " + trialsIter + "/4\nhot: 0/4";
+        }
+        else
+        {
+            int i = trialsIter % 4;
+
+            if (participant.actuationType == _ActuationType.DirectionHot)
+                s += "cold: 4/4\nhot: " + i + "/4";
+            else
+                s += "hot: 4/4\ncold: " + i + "/4";
+        }
+        actuationInfoText.text = s;
         savePathText.text = pathToSaveLocation;
     }
 
@@ -132,6 +150,11 @@ public class ThermalFeedbackManager : MonoBehaviour
     }
     #endregion
 
+    public void ShowURL()
+    {
+        AppManager.Singleton.surveyServerManager.OpenQuestionnaireClientRpc();
+    }
+
     public void StartSingleTrial(int direction)
     {
         StartCoroutine(RunSingleTrial(direction));
@@ -193,7 +216,7 @@ public class ThermalFeedbackManager : MonoBehaviour
 
     public void ForcePause()
     {
-        StopAllCoroutines(); 
+        StopAllCoroutines();
         isTrialRunning = false;
         isGroupRunning = false;
         AppManager.Singleton.peltierController.Pause(true);
@@ -307,7 +330,8 @@ public class ThermalFeedbackManager : MonoBehaviour
 
             participant.id = data.currentParticipant;
             pathToSaveLocation = data.savePath;
-            trialDirections = data.trialDiections;
+            trialDirections = new TrialDiections();
+            trialDirections.trialNumber = data.trialDiections.trialNumber;
 
             sessionInfoText.text = "P.-ID " + participant.id + "\nS-Dir: " + trialDirections.trialNumber;
             savePathText.text = pathToSaveLocation;
@@ -375,7 +399,7 @@ public class ThermalFeedbackManager : MonoBehaviour
         while (File.Exists(path))
         {
             x++;
-            path = pathFolder + "/Participant" + participant.id + "_" + participant.actuationType + "_" + n +  "(" + x + ").csv";
+            path = pathFolder + "/Participant" + participant.id + "_" + participant.actuationType + "_" + n + "(" + x + ").csv";
         }
 
         using (StreamWriter fileCSV = new StreamWriter(path, true))
@@ -431,6 +455,18 @@ public class TrialDiections
     public int[] permutaion6 = { 90, 135, 225, 270, 315, 0, 180, 45 };
     public int[] permutaion7 = { 135, 270, 90, 0, 225, 45, 315, 180 };
     public int[] permutaion8 = { 270, 0, 135, 45, 90, 180, 225, 315 };
+
+    public TrialDiections()
+    {
+        permutaion1 = new int[] { 0, 45, 270, 180, 135, 315, 90, 225 };
+        permutaion2 = new int[] { 45, 180, 0, 315, 270, 225, 135, 90 };
+        permutaion3 = new int[] { 180, 315, 45, 225, 0, 90, 270, 135 };
+        permutaion4 = new int[] { 315, 225, 180, 90, 45, 135, 0, 270 };
+        permutaion5 = new int[] { 225, 90, 315, 135, 180, 270, 45, 0 };
+        permutaion6 = new int[] { 90, 135, 225, 270, 315, 0, 180, 45 };
+        permutaion7 = new int[] { 135, 270, 90, 0, 225, 45, 315, 180 };
+        permutaion8 = new int[] { 270, 0, 135, 45, 90, 180, 225, 315 };
+    }
 
     public int[] getTrialDirections()
     {

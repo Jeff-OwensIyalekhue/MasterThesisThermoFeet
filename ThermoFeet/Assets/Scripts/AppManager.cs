@@ -41,6 +41,7 @@ public class AppManager : MonoBehaviour
     [Header("System Settings")]
     public string connectionAddress;
     public int connectionPort = 7777;
+    public string questionnaireUrl;
 
     private void Awake()
     {
